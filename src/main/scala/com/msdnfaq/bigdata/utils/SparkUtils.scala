@@ -12,7 +12,7 @@ object SparkUtils {
       case "prod" => {
         SparkSession.builder().appName(appName)
           .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-          .config("spark.sql.hive.metastore.version", "1.2.1")
+          .config("spark.sql.hive.metastore.version", "2.3.9")
           .config("spark.sql.cbo.enabled", "true")
           .config("spark.hadoop.dfs.client.block.write.replace-datanode-on-failure.enable", "true")
           .config("spark.hadoop.dfs.client.block.write.replace-datanode-on-failure.policy", "NEVER")
@@ -24,7 +24,7 @@ object SparkUtils {
           .appName(appName + "_" + "dev")
           .master("local[*]")
           .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-          .config("spark.sql.hive.metastore.version", "1.2.1")
+          .config("spark.sql.hive.metastore.version", "2.3.9")
           .config("spark.sql.cbo.enabled", "true")
           .config("spark.hadoop.dfs.client.block.write.replace-datanode-on-failure.enable", "true")
           .config("spark.hadoop.dfs.client.block.write.replace-datanode-on-failure.policy", "NEVER")
