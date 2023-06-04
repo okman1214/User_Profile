@@ -1,0 +1,7 @@
+distinct_id,gender,age,phonenum,email,network_type,phone_type,phone_model
+10010,男,20,138001000987,zhangsan@163.com,4g,iphone,iphone13
+10011,女,13,135001002347,lisi@163.com,wifi,android,xiaomi8
+10012,女,50,138001029885,wangwu@163.com,5g,iphone,iphone7
+10013,女,70,139101092873,zhaoliu@163.com,wifi,android,oppo neo3
+10014,男,80,137009982298,wuming@163.com,5g,iphone,iphone11
+10015,男,90,130040000873,ersha@163.com,4g,android,huaweimeta13
