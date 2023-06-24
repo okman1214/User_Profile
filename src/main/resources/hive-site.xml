@@ -1,17 +1,17 @@
 <configuration>
     <property>  
         <name>hive.exec.scratchdir</name> 
-        <value>hdfs://10.206.0.4:9000/hive/tmp</value>
+        <value>hdfs://10.18.0.240:9000/hive/tmp</value>
 <!--        <value>hdfs://146.56.208.76:9000/hive/tmp</value>-->
     </property>
     <property>
         <name>hive.metastore.warehouse.dir</name>
-        <value>hdfs://10.206.0.4:9000/hive/warehouse</value>
+        <value>hdfs://10.18.0.240:9000/hive/warehouse</value>
 <!--        <value>hdfs://146.56.208.76:9000/hive/warehouse</value>-->
     </property>
     <property>  
         <name>hive.querylog.location</name>
-        <value>hdfs://10.206.0.4:9000/hive/log</value>
+        <value>hdfs://10.18.0.240:9000/hive/log</value>
 <!--        <value>hdfs://146.56.208.76:9000/hive/log</value>-->
     </property>
     <property>
@@ -20,12 +20,12 @@
     </property>
     <property>
         <name>hive.server2.thrift.bind.host</name>
-        <value>10.206.0.4</value>
+        <value>10.18.0.240</value>
 <!--        <value>146.56.208.76</value>-->
     </property>
     <property>
         <name>hive.metastore.uris</name>
-        <value>thrift://10.206.0.4:9083</value>
+        <value>thrift://10.18.0.240:9083</value>
 <!--        <value>thrift://146.56.208.76:9083</value>-->
     </property>
 </configuration>

@@ -10,7 +10,8 @@ case class ConfigUtils(env: String = "",
                        startDate: String = "",
                        endDate: String = "",
                        proxyUser: String = "root",
-                       topK: Int = 25)
+                       topK: Int = 25,
+                       limit: Int = 1000)
 
 object ConfigUtils {
 
@@ -31,11 +32,12 @@ object ConfigUtils {
       opt[String]('x', "proxyUser").required().action((x, config) => config.copy(proxyUser = x))
       //2.3 匹配程序
       programName match {
-        case "LabelGenerator" =>
+        case "InitGenerator" =>
           opt[String]('n', "username").required().action((x, config) => config.copy(username = x))
           opt[String]('p', "password").required().action((x, config) => config.copy(password = x))
           opt[String]('u', "url").required().action((x, config) => config.copy(url = x))
           opt[String]('c', "cluster").required().action((x, config) => config.copy(cluster = x))
+          opt[Int]('l', "limit").required().action((x, config) => config.copy(limit = x))
         case _ =>
       }
     }

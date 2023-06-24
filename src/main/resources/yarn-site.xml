@@ -3,7 +3,7 @@
     <!-- Site specific YARN configuration properties -->
     <property>
         <name>yarn.resourcemanager.hostname</name>
-        <value>10.206.0.4</value>
+        <value>10.18.0.240</value>
 <!--        <value>146.56.208.76</value>-->
     </property>
     <property>
@@ -54,7 +54,7 @@
     </property>
     <property>
         <name>yarn.log.server.url</name>
-        <value>http://10.206.0.4:19888/jobhistory/logs</value>
+        <value>http://10.18.0.240:19888/jobhistory/logs</value>
 <!--        <value>http://146.56.208.76:19888/jobhistory/logs</value>-->
     </property>
 </configuration>
