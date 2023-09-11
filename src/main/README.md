@@ -25,7 +25,7 @@ ${SPARK_HOME}/bin/spark-submit \
 --name user-profile_base \
 --master yarn \
 --deploy-mode client \
---driver-memory 2G \
+--driver-memory 10G \
 --executor-memory 2G \
 --num-executors 4 \
 --class com.msdnfaq.bigdata.userprofile.InitGenerator \

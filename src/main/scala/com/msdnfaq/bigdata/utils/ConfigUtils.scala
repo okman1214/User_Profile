@@ -7,6 +7,7 @@ case class ConfigUtils(env: String = "",
                        password: String = "",
                        url: String = "",
                        cluster: String = "",
+                       dbSuffix: String = "",
                        startDate: String = "",
                        endDate: String = "",
                        proxyUser: String = "root",
@@ -37,6 +38,7 @@ object ConfigUtils {
           opt[String]('p', "password").required().action((x, config) => config.copy(password = x))
           opt[String]('u', "url").required().action((x, config) => config.copy(url = x))
           opt[String]('c', "cluster").required().action((x, config) => config.copy(cluster = x))
+          opt[String]('d', "db_suffix").required().action((x, config) => config.copy(dbSuffix = x))
           opt[Int]('l', "limit").required().action((x, config) => config.copy(limit = x))
         case _ =>
       }

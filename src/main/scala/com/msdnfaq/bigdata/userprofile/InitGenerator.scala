@@ -1,5 +1,9 @@
 package com.msdnfaq.bigdata.userprofile
 
+import java.lang
+import java.sql.Timestamp
+import java.util.Date
+
 import com.msdnfaq.bigdata.utils.{ConfigUtils, SparkUtils}
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.{SaveMode, SparkSession}
@@ -11,6 +15,79 @@ import scala.util.Random
 object InitGenerator {
   private val logger = LoggerFactory.getLogger(InitGenerator.getClass)
 
+  def initUserAction(ss: SparkSession, params: ConfigUtils) = {
+    logger.warn("init UserAction...")
+
+    val dbSuffix = params.dbSuffix
+    val dbName = "hive.dwd_" + dbSuffix
+    //建库
+    logger.warn("create db...")
+    var dbCreateSql =
+      """
+        |create database if not exists """ + dbName + """
+        |""".stripMargin
+
+    ss.sql(dbCreateSql)
+
+    //清空数据
+    logger.warn("drop table...")
+    val tableName = dbName + ".dwd_user_action"
+    var dropTableSql =
+      """
+        |drop table if exists """ + tableName.stripMargin
+    ss.sql(dropTableSql)
+
+    //建表
+    logger.warn("create table...")
+    var createTableSql =
+      """
+        |create table if not exists """ + tableName + """ (
+        |distinct_id string,
+        |user_id string,
+        |version_code string,
+        |lang string,
+        |os string,
+        |model string,
+        |brand string,
+        |sdk_version string,
+        |height_width string,
+        |network string,
+        |lng string,
+        |lat string,
+        |action string,
+        |phonenum string,
+        |goodsid string,
+        |create_time long
+        |)
+        |using iceberg
+        |""".stripMargin
+
+    ss.sql(createTableSql)
+
+    //插入数据
+    logger.warn("insert table...")
+
+    if (params.env.trim.equalsIgnoreCase("prod")) {
+
+      val limit = params.limit
+      val userActions = new Array[UserAction](limit)
+      for (i <- 0 to limit - 1) {
+        userActions.update(i, randomUserAction(i))
+      }
+      val userDF = ss.createDataFrame[UserAction](userActions)
+      userDF.writeTo(tableName).overwritePartitions() // 使用DataFrameWriterV2 API  spark3.0
+      //userDF.write.format("iceberg").mode("append").save("hive.dwd.dwd_user_base_feature") //使用DataFrameWriterV1 API spark2.4
+    } else {
+      logger.warn("do not notice env")
+    }
+  }
+
+  /**
+   * 初始化用户画像宽表数据
+   *
+   * @param ss
+   * @param params
+   */
   def initUserBaseFeature(ss: SparkSession, params: ConfigUtils): Unit = {
     logger.warn("init UserBaseFeature...")
     //val path = InitGenerator.getClass.getResource("data.csv").getPath
@@ -19,26 +96,28 @@ object InitGenerator {
     //logger.warn("hdfs path: " + path)
     //建库
     logger.warn("create db...")
+    val dbSuffix = params.dbSuffix
+    val dbName = "hive.dwd_" + dbSuffix
     var dbCreateSql =
       """
-        |create database if not exists hive.dwd
+        |create database if not exists """ + dbName + """
         |""".stripMargin
 
     ss.sql(dbCreateSql)
 
     //清空数据
     logger.warn("drop table...")
+    val tableName = dbName + ".dwd_user_base_feature"
     var dropTableSql =
       """
-        |drop table if exists hive.dwd.dwd_user_base_feature
-        |""".stripMargin
+        |drop table if exists """ + tableName.stripMargin
     ss.sql(dropTableSql)
 
     //建表
     logger.warn("create table...")
     var createTableSql =
       """
-        |create table if not exists hive.dwd.dwd_user_base_feature (
+        |create table if not exists """ + tableName + """ (
         |distinct_id string,
         |gender string,
         |age string,
@@ -68,17 +147,18 @@ object InitGenerator {
       userBaseFeatureDF.write
         .format("iceberg")
         .mode(SaveMode.Overwrite)
-        .saveAsTable("hive.dwd.dwd_user_base_feature")
+        .saveAsTable(tableName)
       //userBaseFeatherDF.show()
     } else if (params.env.trim.equalsIgnoreCase("prod")) {
 
-      val limit = params.limit
+      //val limit = params.limit
+      val limit = 1000
       val users = new Array[UserProfile](limit)
       for (i <- 0 to limit - 1) {
         users.update(i, randomUser(i))
       }
       val userDF = ss.createDataFrame[UserProfile](users)
-      userDF.writeTo("hive.dwd.dwd_user_base_feature").append() // 使用DataFrameWriterV2 API  spark3.0
+      userDF.writeTo(tableName).overwritePartitions() // 使用DataFrameWriterV2 API  spark3.0
       //userDF.write.format("iceberg").mode("append").save("hive.dwd.dwd_user_base_feature") //使用DataFrameWriterV1 API spark2.4
     } else {
       logger.warn("do not notice env")
@@ -161,8 +241,12 @@ object InitGenerator {
     val v6 = new Random().nextInt(phoneModel.size - 1)
     val phone = phoneModel(v6)
 
+    //用户ID
+    val v7 = new Random().nextInt(1000)
+    val userId = 1000000 + v7
+
     UserProfile(
-      1000 + num,
+      userId,
       gender,
       age,
       phoneNum,
@@ -173,6 +257,157 @@ object InitGenerator {
   }
 
   case class UserProfile(distinct_id: Int, gender: String, age: Int, phonenum: String, email: String, network_type: String, phone_type: String, phone_model: String)
+
+  def randomUserAction(num: Int): UserAction = {
+    //版本
+    val versionRandom = Array(
+      "v1.0",
+      "v1.4",
+      "v1.4.1",
+      "v2.0",
+      "v2.1"
+    )
+    val v1 = new Random().nextInt(versionRandom.size - 1)
+    val version = versionRandom(v1)
+
+    //语言
+    val langRandom = Array(
+      "en",
+      "chn",
+      "jpn",
+      "kro"
+    )
+    val v2 = new Random().nextInt(langRandom.size - 1)
+    val lang = langRandom(v2)
+
+    //电话类型
+    val phoneModel = Array(
+      ("iphone", "iphone", "13"),
+      ("iphone", "iphone", "12"),
+      ("iphone", "iphone", "11"),
+      ("android", "huawei", "met13"),
+      ("android", "oppo", "v9"),
+      ("android", "oppo", "v10"),
+      ("android", "neo", "v3"),
+      ("android", "neo", "v4"),
+      ("android", "xiaomi", "v13"),
+      ("android", "xiaomi", "v14")
+    )
+    val v3 = new Random().nextInt(phoneModel.size - 1)
+    val phone = phoneModel(v3)
+
+    //屏幕尺寸
+    val screemRondom = Array(
+      ("1024", "768"),
+      ("1920", "1360"),
+      ("768", "456")
+    )
+    val v4 = new Random().nextInt(screemRondom.size - 1)
+    val scream = screemRondom(v4)
+
+    //随机网络制式
+    val networksRandom = Array(
+      "wifi",
+      "4g",
+      "5g",
+      "3g",
+      "2g"
+    )
+    val v5 = new Random().nextInt(networksRandom.size - 1)
+    val network = networksRandom(v5)
+
+    //经度
+    val lngRandom = Array(
+      "49",
+      "100",
+      "120",
+      "78",
+      "99"
+    )
+    val v6 = new Random().nextInt(lngRandom.size - 1)
+    val lng = lngRandom(v6)
+
+    //纬度
+    val latRandom = Array(
+      "564",
+      "87",
+      "256",
+      "12",
+      "90"
+    )
+    val v7 = new Random().nextInt(latRandom.size - 1)
+    val lat = lngRandom(v7)
+
+    //动作
+    val actionRandom = Array(
+      "注册",
+      "加购",
+      "下单",
+      "退货",
+      "评论"
+    )
+    val v8 = new Random().nextInt(actionRandom.size - 1)
+    val action = lngRandom(v8)
+
+    //随机电话号码
+    val phonePrefix = Array(
+      "138",
+      "139",
+      "136",
+      "135",
+      "137"
+    )
+    val v9 = new Random().nextInt(phonePrefix.size - 1)
+
+    val str = "0123456789";
+    val random1 = new Random();
+    //指定字符串长度，拼接字符并toString
+    var sb = new StringBuilder();
+    for (i <- 0 to 8) {
+      //获取指定长度的字符串中任意一个字符的索引值
+      var number = random1.nextInt(str.length());
+      //根据索引值获取对应的字符
+      val charAt = str.charAt(number);
+      sb.append(charAt);
+    }
+    val phoneNum = phonePrefix(v9) + sb.toString();
+
+    //用户ID
+    val v10 = new Random().nextInt(1000)
+    val userId = 1000000 + v10
+
+    //随机电话号码
+    val goodsRandom = Array(
+      "1010",
+      "1198",
+      "18761",
+      "1209",
+      "4378"
+    )
+    val v11 = new Random().nextInt(goodsRandom.size - 1)
+    val goodID = goodsRandom(v11)
+
+    UserAction(
+      userId,
+      "0012001" + userId,
+      version,
+      lang,
+      phone._1,
+      phone._3,
+      phone._2,
+      "SDK_" + version,
+      scream._1 + "_" + scream._2,
+      network,
+      lng,
+      lat,
+      action,
+      phoneNum,
+      goodID,
+      System.currentTimeMillis()
+    )
+  }
+
+  case class UserAction(distinct_id: Int, user_id: String, version_code: String, lang: String, os: String, model: String, brand: String, sdk_version: String, height_width: String, network: String, lng: String, lat: String, action: String, phonenum: String, goodsid: String, create_time: Long)
 
   def main(args: Array[String]): Unit = {
     Logger.getLogger("org").setLevel(Level.WARN) // 将日志的级别调整减少不必要的日志显示在控制台
@@ -195,6 +430,9 @@ object InitGenerator {
 
     //初始化用户基础表
     InitGenerator.initUserBaseFeature(ss, params)
+
+    //初始化用户行为表
+    InitGenerator.initUserAction(ss, params)
 
     ss.stop()
     logger.warn("init done...")
