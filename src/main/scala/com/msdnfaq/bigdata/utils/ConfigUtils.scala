@@ -8,6 +8,7 @@ case class ConfigUtils(env: String = "",
                        url: String = "",
                        cluster: String = "",
                        dbSuffix: String = "",
+                       dbAppend: Boolean = false,
                        startDate: String = "",
                        endDate: String = "",
                        proxyUser: String = "root",
@@ -39,6 +40,7 @@ object ConfigUtils {
           opt[String]('u', "url").required().action((x, config) => config.copy(url = x))
           opt[String]('c', "cluster").required().action((x, config) => config.copy(cluster = x))
           opt[String]('d', "db_suffix").required().action((x, config) => config.copy(dbSuffix = x))
+          opt[Boolean]('a', "db_append").required().action((x, config) => config.copy(dbAppend = x))
           opt[Int]('l', "limit").required().action((x, config) => config.copy(limit = x))
         case _ =>
       }

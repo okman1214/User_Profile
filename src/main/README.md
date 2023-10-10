@@ -30,7 +30,7 @@ ${SPARK_HOME}/bin/spark-submit \
 --num-executors 4 \
 --class com.msdnfaq.bigdata.userprofile.InitGenerator \
 /home/hadoop/User_Profile-1.0-SNAPSHOT-jar-with-dependencies.jar \
--e prod -x hadoop -l 1000000 -u baidu.com -n hadoop -p 123 -c yarn
+-e prod -x hadoop -l 1000000 -u baidu.com -n hadoop -p 123 -c yarn -d lynchgao -a true
 
 //用sparksql测试语法
 spark-sql \

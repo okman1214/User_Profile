@@ -16,9 +16,9 @@ object SparkUtils {
           .config("spark.sql.cbo.enabled", "true")
           .config("spark.hadoop.dfs.client.block.write.replace-datanode-on-failure.enable", "true")
           .config("spark.hadoop.dfs.client.block.write.replace-datanode-on-failure.policy", "NEVER")
-          .config("spark.sql.extensions","org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions")
-          .config("spark.sql.catalog.hive","org.apache.iceberg.spark.SparkCatalog")
-          .config("spark.sql.catalog.hive.type","hive")
+          .config("spark.sql.extensions", "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions")
+          .config("spark.sql.catalog.hive", "org.apache.iceberg.spark.SparkCatalog")
+          .config("spark.sql.catalog.hive.type", "DataLakeCatalog")
           .enableHiveSupport()
           .getOrCreate()
       }
@@ -31,6 +31,20 @@ object SparkUtils {
           .config("spark.sql.cbo.enabled", "true")
           .config("spark.hadoop.dfs.client.block.write.replace-datanode-on-failure.enable", "true")
           .config("spark.hadoop.dfs.client.block.write.replace-datanode-on-failure.policy", "NEVER")
+          .enableHiveSupport()
+          .getOrCreate()
+      }
+      case "dlc_prod" => {
+        SparkSession.builder().appName(appName)
+
+          .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+          //.config("spark.sql.hive.metastore.version", "2.3.9")
+          .config("spark.sql.cbo.enabled", "true")
+          .config("spark.hadoop.dfs.client.block.write.replace-datanode-on-failure.enable", "true")
+          .config("spark.hadoop.dfs.client.block.write.replace-datanode-on-failure.policy", "NEVER")
+          .config("spark.sql.extensions","org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions")
+          .config("spark.sql.catalog.hive","org.apache.iceberg.spark.SparkCatalog")
+          .config("spark.sql.catalog.hive.type","DataLakeCatalog")
           .enableHiveSupport()
           .getOrCreate()
       }

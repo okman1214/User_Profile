@@ -19,48 +19,53 @@ object InitGenerator {
     logger.warn("init UserAction...")
 
     val dbSuffix = params.dbSuffix
-    val dbName = "hive.dwd_" + dbSuffix
+
+//    var dbName = ""
+//    if (params.env.trim.equalsIgnoreCase("dlc_prod")) {
+//      dbName = "DataLakeCatalog.dwd_" + dbSuffix
+//    }else{
+//      dbName = "dwd_" + dbSuffix
+//    }
+    val dbName = "DataLakeCatalog.dwd_" + dbSuffix
     //建库
     logger.warn("create db...")
     var dbCreateSql =
-      """
-        |create database if not exists """ + dbName + """
-        |""".stripMargin
-
+      "create database if not exists " + dbName.stripMargin
     ss.sql(dbCreateSql)
 
-    //清空数据
-    logger.warn("drop table...")
     val tableName = dbName + ".dwd_user_action"
-    var dropTableSql =
-      """
-        |drop table if exists """ + tableName.stripMargin
-    ss.sql(dropTableSql)
+    //清空数据
+    if (!params.dbAppend) {
+      logger.warn("drop table...")
+      var dropTableSql =
+        "drop table if exists " + tableName.stripMargin
+      ss.sql(dropTableSql)
+    }
 
     //建表
     logger.warn("create table...")
     var createTableSql =
-      """
-        |create table if not exists """ + tableName + """ (
-        |distinct_id string,
-        |user_id string,
-        |version_code string,
-        |lang string,
-        |os string,
-        |model string,
-        |brand string,
-        |sdk_version string,
-        |height_width string,
-        |network string,
-        |lng string,
-        |lat string,
-        |action string,
-        |phonenum string,
-        |goodsid string,
-        |create_time long
-        |)
-        |using iceberg
-        |""".stripMargin
+      "create table if not exists " + tableName +
+        """ (
+          |distinct_id string,
+          |user_id string,
+          |version_code string,
+          |lang string,
+          |os string,
+          |model string,
+          |brand string,
+          |sdk_version string,
+          |height_width string,
+          |network string,
+          |lng string,
+          |lat string,
+          |action string,
+          |phonenum string,
+          |goodsid string,
+          |create_time long
+          |)
+          |using iceberg
+          |""".stripMargin
 
     ss.sql(createTableSql)
 
@@ -75,8 +80,12 @@ object InitGenerator {
         userActions.update(i, randomUserAction(i))
       }
       val userDF = ss.createDataFrame[UserAction](userActions)
-      userDF.writeTo(tableName).overwritePartitions() // 使用DataFrameWriterV2 API  spark3.0
-      //userDF.write.format("iceberg").mode("append").save("hive.dwd.dwd_user_base_feature") //使用DataFrameWriterV1 API spark2.4
+      if (!params.dbAppend) {
+        userDF.writeTo(tableName).overwritePartitions() // 使用DataFrameWriterV2 API  spark3.0
+        //userDF.write.format("iceberg").mode("append").save("DataLakeCatalog.dwd.dwd_user_base_feature") //使用DataFrameWriterV1 API spark2.4
+      } else {
+        userDF.writeTo(tableName).append()
+      }
     } else {
       logger.warn("do not notice env")
     }
@@ -97,38 +106,44 @@ object InitGenerator {
     //建库
     logger.warn("create db...")
     val dbSuffix = params.dbSuffix
-    val dbName = "hive.dwd_" + dbSuffix
-    var dbCreateSql =
-      """
-        |create database if not exists """ + dbName + """
-        |""".stripMargin
+//    var dbName = ""
+//
+//    if (params.env.trim.equalsIgnoreCase("dlc_prod")) {
+//      dbName = "DataLakeCatalog.dwd_" + dbSuffix
+//    } else {
+//      dbName = "dwd_" + dbSuffix
+//    }
 
+    val dbName = "DataLakeCatalog.dwd_" + dbSuffix
+
+    val dbCreateSql = "create database if not exists " + dbName.stripMargin
     ss.sql(dbCreateSql)
 
-    //清空数据
-    logger.warn("drop table...")
     val tableName = dbName + ".dwd_user_base_feature"
-    var dropTableSql =
-      """
-        |drop table if exists """ + tableName.stripMargin
-    ss.sql(dropTableSql)
+    //清空数据
+    if (!params.dbAppend) {
+      logger.warn("drop table...")
+      var dropTableSql =
+        "drop table if exists " + tableName
+      ss.sql(dropTableSql)
+    }
 
     //建表
     logger.warn("create table...")
     var createTableSql =
-      """
-        |create table if not exists """ + tableName + """ (
-        |distinct_id string,
-        |gender string,
-        |age string,
-        |phonenum string,
-        |email string,
-        |network_type string,
-        |phone_type string,
-        |phone_model string
-        |)
-        |using iceberg
-        |""".stripMargin
+      "create table if not exists " + tableName +
+        """ (
+          |distinct_id string,
+          |gender string,
+          |age string,
+          |phonenum string,
+          |email string,
+          |network_type string,
+          |phone_type string,
+          |phone_model string
+          |)
+          |using iceberg
+          |""".stripMargin
 
     ss.sql(createTableSql)
 
@@ -144,10 +159,18 @@ object InitGenerator {
 
       userBaseFeatureDF.show()
       userBaseFeatureDF.cache()
-      userBaseFeatureDF.write
-        .format("iceberg")
-        .mode(SaveMode.Overwrite)
-        .saveAsTable(tableName)
+      if (!params.dbAppend) {
+        userBaseFeatureDF.write
+          .format("iceberg")
+          .mode(SaveMode.Overwrite)
+          .saveAsTable(tableName)
+      } else {
+        userBaseFeatureDF.write
+          .format("iceberg")
+          .mode(SaveMode.Append)
+          .saveAsTable(tableName)
+      }
+
       //userBaseFeatherDF.show()
     } else if (params.env.trim.equalsIgnoreCase("prod")) {
 
@@ -158,8 +181,12 @@ object InitGenerator {
         users.update(i, randomUser(i))
       }
       val userDF = ss.createDataFrame[UserProfile](users)
-      userDF.writeTo(tableName).overwritePartitions() // 使用DataFrameWriterV2 API  spark3.0
-      //userDF.write.format("iceberg").mode("append").save("hive.dwd.dwd_user_base_feature") //使用DataFrameWriterV1 API spark2.4
+      if (!params.dbAppend) {
+        userDF.writeTo(tableName).overwritePartitions() // 使用DataFrameWriterV2 API  spark3.0
+        //userDF.write.format("iceberg").mode("append").save("DataLakeCatalog.dwd.dwd_user_base_feature") //使用DataFrameWriterV1 API spark2.4
+      } else {
+        userDF.writeTo(tableName).append()
+      }
     } else {
       logger.warn("do not notice env")
     }
@@ -411,30 +438,36 @@ object InitGenerator {
 
   def main(args: Array[String]): Unit = {
     Logger.getLogger("org").setLevel(Level.WARN) // 将日志的级别调整减少不必要的日志显示在控制台
+    try {
+      //1. 解析参数
+      val params: ConfigUtils = ConfigUtils.parseConfig(InitGenerator, args)
+      logger.info("job is running, please wait for a moment")
 
-    //1. 解析参数
-    val params: ConfigUtils = ConfigUtils.parseConfig(InitGenerator, args)
-    logger.info("job is running, please wait for a moment")
+      //2. 获取到sparkSession
+      val ss: SparkSession = SparkUtils.getSparkSession(
+        params.env,
+        InitGenerator.getClass.getSimpleName)
+      //2.1 设置spark操作的参数:读取hudi和hdfs的时候采取指定的过滤器来消除读取表的时候的无用的信息
+      ss.sparkContext.hadoopConfiguration
+        .setClass("mapreduce.input.pathFilter.class",
+          classOf[org.apache.hudi.hadoop.HoodieROTablePathFilter],
+          classOf[org.apache.hadoop.fs.PathFilter])
 
-    //2. 获取到sparkSession
-    val ss: SparkSession = SparkUtils.getSparkSession(
-      params.env,
-      InitGenerator.getClass.getSimpleName)
-    //2.1 设置spark操作的参数:读取hudi和hdfs的时候采取指定的过滤器来消除读取表的时候的无用的信息
-    ss.sparkContext.hadoopConfiguration
-      .setClass("mapreduce.input.pathFilter.class",
-        classOf[org.apache.hudi.hadoop.HoodieROTablePathFilter],
-        classOf[org.apache.hadoop.fs.PathFilter])
+      import ss.implicits._
 
-    import ss.implicits._
+      //初始化用户基础表
+      InitGenerator.initUserBaseFeature(ss, params)
 
-    //初始化用户基础表
-    InitGenerator.initUserBaseFeature(ss, params)
+      //初始化用户行为表
+      InitGenerator.initUserAction(ss, params)
 
-    //初始化用户行为表
-    InitGenerator.initUserAction(ss, params)
+      ss.stop()
+      logger.warn("init done...")
+    } catch {
+      case ex: Exception => {
+        logger.error("InitGenerator.main error: " + ex.getMessage, ex)
+      }
+    }
 
-    ss.stop()
-    logger.warn("init done...")
   }
 }
