@@ -71,8 +71,7 @@ object InitGenerator {
 
     if (params.env.trim.equalsIgnoreCase("dlc_prod")) {
 
-      //val limit = params.limit
-      val limit = 1000
+      val limit = params.limit
       val userActions: util.List[UserAction] = new util.ArrayList[UserAction](limit)
       for (i <- 0 to limit - 1) {
         //userActions.update(i, randomUserAction(i))
@@ -495,39 +494,4 @@ object InitGenerator {
   }
 
   case class UserAction(@BeanProperty val distinct_id: Int, @BeanProperty val user_id: String, @BeanProperty val version_code: String, @BeanProperty val lang: String, @BeanProperty val os: String, @BeanProperty val model: String, @BeanProperty val brand: String, @BeanProperty val sdk_version: String, @BeanProperty val height_width: String, @BeanProperty val network: String, @BeanProperty val lng: String, @BeanProperty val lat: String, @BeanProperty val action: String, @BeanProperty val phonenum: String, @BeanProperty val goodsid: String, @BeanProperty val create_time: Long)
-
-  def main(args: Array[String]): Unit = {
-    Logger.getLogger("org").setLevel(Level.WARN) // 将日志的级别调整减少不必要的日志显示在控制台
-    try {
-      //1. 解析参数
-      val params: ConfigUtils = ConfigUtils.parseConfig(InitGenerator, args)
-      logger.info("job is running, please wait for a moment")
-
-      //2. 获取到sparkSession
-      val ss: SparkSession = SparkUtils.getSparkSession(
-        params.env,
-        InitGenerator.getClass.getSimpleName)
-      //2.1 设置spark操作的参数:读取hudi和hdfs的时候采取指定的过滤器来消除读取表的时候的无用的信息
-      ss.sparkContext.hadoopConfiguration
-        .setClass("mapreduce.input.pathFilter.class",
-          classOf[org.apache.hudi.hadoop.HoodieROTablePathFilter],
-          classOf[org.apache.hadoop.fs.PathFilter])
-
-      import ss.implicits._
-
-      //初始化用户基础表
-      InitGenerator.initUserBaseFeature(ss, params)
-
-      //初始化用户行为表
-      InitGenerator.initUserAction(ss, params)
-
-      ss.stop()
-      logger.warn("init done...")
-    } catch {
-      case ex: Exception => {
-        logger.error("InitGenerator.main error: " + ex.getMessage, ex)
-      }
-    }
-
-  }
 }
