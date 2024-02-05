@@ -10,12 +10,12 @@
 
 
     <properties>
-        <scala.version>2.12.14</scala.version>
         <play-json.version>2.3.9</play-json.version>
-        <maven-scala-plugin.version>2.10.1</maven-scala-plugin.version>
-        <scala-maven-plugin.version>3.2.0</scala-maven-plugin.version>
+        <scala-maven-plugin.version>3.2.1</scala-maven-plugin.version>
         <maven-assembly-plugin.version>2.6</maven-assembly-plugin.version>
         <spark.version>3.2.1</spark.version>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
         <!--EMR 使用放开
         <scope.type>compile</scope.type>-->
         <!--DLC 使用放开-->
@@ -27,20 +27,15 @@
 
     <dependencies>
 
-        <!--json 包-->
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>${json.version}</version>
-        </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.apache.spark/spark-sql-kafka-0-10 -->
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_2.12</artifactId>
+            <artifactId>spark-sql-kafka-0-10_2.12</artifactId>
             <version>${spark.version}</version>
-            <scope>${scope.type}</scope>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.apache.spark/spark-sql -->
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-sql_2.12</artifactId>
@@ -55,93 +50,52 @@
             <scope>${scope.type}</scope>
         </dependency>
 
-        <!-- Spark与Iceberg整合的依赖包
-        <dependency>
-            <groupId>org.apache.iceberg</groupId>
-            <artifactId>iceberg-spark3</artifactId>
-            <version>0.13.0</version>
-        </dependency>-->
-        <dependency>
-            <groupId>org.apache.iceberg</groupId>
-            <artifactId>iceberg-spark-runtime-3.2_2.12</artifactId>
-            <!--<version>0.13.0</version>-->
-            <scope>${scope.type}</scope>
-            <version>1.2.1</version>
-        </dependency>
-
-        <!-- avro格式 依赖包 -->
-        <dependency>
-            <groupId>org.apache.avro</groupId>
-            <artifactId>avro</artifactId>
-            <version>1.10.2</version>
-        </dependency>
-
-        <!-- parquet格式 依赖包 -->
-        <dependency>
-            <groupId>org.apache.parquet</groupId>
-            <artifactId>parquet-hadoop</artifactId>
-            <version>1.12.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.37</version>
-        </dependency>
-
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
-            <scope>${scope.type}</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>1.6</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-            <version>${scala.version}</version>
-            <scope>${scope.type}</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-reflect</artifactId>
-            <version>${scala.version}</version>
-            <scope>${scope.type}</scope>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/com.github.scopt/scopt -->
-        <dependency>
-            <groupId>com.github.scopt</groupId>
-            <artifactId>scopt_2.12</artifactId>
-            <version>4.1.0</version>
-        </dependency>
-
-
         <dependency>
             <groupId>org.apache.hudi</groupId>
             <artifactId>hudi-spark-bundle_2.12</artifactId>
-            <version>0.5.2-incubating</version>
+            <version>0.10.1</version>
             <scope>${scope.type}</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-avro_2.12</artifactId>
-            <version>${spark.version}</version>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>2.0.8</version>
             <scope>${scope.type}</scope>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.apache.iceberg/iceberg-core -->
         <dependency>
-            <groupId>com.hankcs</groupId>
-            <artifactId>hanlp</artifactId>
-            <version>portable-1.7.8</version>
+            <groupId>org.apache.iceberg</groupId>
+            <artifactId>iceberg-core</artifactId>
+            <version>0.13.1</version>
+            <scope>${scope.type}</scope>
+
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.iceberg/iceberg-spark3 -->
+        <dependency>
+            <groupId>org.apache.iceberg</groupId>
+            <artifactId>iceberg-spark3</artifactId>
+            <version>0.13.1</version>
+            <scope>${scope.type}</scope>
+        </dependency>
+
+
+        <!-- https://mvnrepository.com/artifact/org.apache.iceberg/iceberg-spark3-runtime -->
+        <dependency>
+            <groupId>org.apache.iceberg</groupId>
+            <artifactId>iceberg-spark3-runtime</artifactId>
+            <version>0.13.1</version>
+            <scope>${scope.type}</scope>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-common -->
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+            <version>2.7.3</version>
+            <scope>${scope.type}</scope>
         </dependency>
 
         <dependency>
@@ -151,7 +105,6 @@
             <scope>${scope.type}</scope>
         </dependency>
 
-        <!--EMR使用放开 DLC使用关闭
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-jdbc</artifactId>
@@ -169,11 +122,45 @@
             </exclusions>
         </dependency>
 
+        <!--json 包-->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>${json.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.37</version>
+        </dependency>
+
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.17</version>
+            <scope>${scope.type}</scope>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.github.scopt/scopt -->
+        <dependency>
+            <groupId>com.github.scopt</groupId>
+            <artifactId>scopt_2.12</artifactId>
+            <version>4.1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.hankcs</groupId>
+            <artifactId>hanlp</artifactId>
+            <version>portable-1.7.8</version>
+        </dependency>
+
         <dependency>
             <groupId>ru.yandex.clickhouse</groupId>
             <artifactId>clickhouse-jdbc</artifactId>
             <version>0.2.4</version>
-        </dependency>-->
+        </dependency>
 
     </dependencies>
 
@@ -200,7 +187,9 @@
                 <directory>src/main/resources</directory>
                 <filtering>false</filtering>
                 <excludes>
-                    <exclude>*.xml</exclude>
+                    <exclude>hive-site.xml</exclude>
+                    <exclude>core-site.xml</exclude>
+                    <exclude>yarn-site.xml</exclude>
                 </excludes>
             </resource>
         </resources>
@@ -224,22 +213,19 @@
                     </execution>
                 </executions>
             </plugin>
+            <!--scala编译打包插件-->
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
                 <version>${scala-maven-plugin.version}</version>
                 <executions>
                     <execution>
+                        <id>scala-compile-first</id>
+                        <phase>process-resources</phase>
                         <goals>
+                            <goal>add-source</goal>
                             <goal>compile</goal>
-                            <goal>testCompile</goal>
                         </goals>
-                        <configuration>
-                            <args>
-                                <arg>-dependencyfile</arg>
-                                <arg>${project.build.directory}/.scala_dependencies</arg>
-                            </args>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
