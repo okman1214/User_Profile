@@ -1,6 +1,6 @@
 <configuration>
-    <property>  
-        <name>hive.exec.scratchdir</name> 
+    <property>
+        <name>hive.exec.scratchdir</name>
         <value>hdfs://10.18.0.240:9000/hive/tmp</value>
 <!--        <value>hdfs://146.56.208.76:9000/hive/tmp</value>-->
     </property>
@@ -9,7 +9,7 @@
         <value>hdfs://10.18.0.240:9000/hive/warehouse</value>
 <!--        <value>hdfs://146.56.208.76:9000/hive/warehouse</value>-->
     </property>
-    <property>  
+    <property>
         <name>hive.querylog.location</name>
         <value>hdfs://10.18.0.240:9000/hive/log</value>
 <!--        <value>hdfs://146.56.208.76:9000/hive/log</value>-->
