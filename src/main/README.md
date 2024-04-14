@@ -1,3 +1,4 @@
+1、EMR DLC 测试Iceberg
 //上传文件到hdfs
 hdfs dfs -mkdir /data
 hdfs dfs -put data.csv /data
@@ -19,7 +20,7 @@ ${SPARK_HOME}/bin/spark-submit \
 --executor-memory 2G \
 --num-executors 4 \
 --class com.msdnfaq.bigdata.Main \
-/home/hadoop/project/User_Profile-1.0-SNAPSHOT-jar-with-dependencies.jar \
+/home/hadoop/User_Profile-1.0-SNAPSHOT-jar-with-dependencies.jar \
 -e dlc_prod -x hadoop -l 100000 -u baidu.com -n hadoop -p 123 -c yarn -d lynchgao -a true
 
  //用sparksql测试语法
@@ -32,3 +33,21 @@ ${SPARK_HOME}/bin/spark-submit \
   
 CREATE TABLE hive.dwd.t1 (id int, name string) USING iceberg;
 INSERT INTO hive.dwd.dwd_user_base_feature values("1", "男","20","1309181881","ok@124.com","4g","iphone","iphone13");
+
+2、EMR 测试Spark
+
+nohup ${SPARK_HOME}/bin/spark-submit \
+--conf spark.executor.heartbeatInterval=120s \
+--conf spark.rpc.message.maxSize=1024 \
+--conf spark.network.timeout=600s \
+--conf spark.sql.shuffle.partitions=20 \
+--conf spark.yarn.submit.waitAppCompletion=true \
+--name user-profile_base \
+--master yarn \
+--deploy-mode client \
+--driver-memory 10G \
+--executor-memory 2G \
+--num-executors 4 \
+--class com.msdnfaq.bigdata.sparkvshive.SparkTest \
+/home/hadoop/User_Profile-1.0-SNAPSHOT-jar-with-dependencies.jar \
+-e dlc_hive_prod -x hadoop -l 10000000 -u baidu.com -n hadoop -p 123 -c yarn -d lynchgao -a false >> error.log 2>&1 &
