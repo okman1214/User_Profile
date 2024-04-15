@@ -22,7 +22,7 @@ object InitGenerator {
     try {
 
       logger.warn("init dws_cstm_new_user_order_conversion_data_df...")
-      val dbName = "dw1"
+      val dbName = "dw"
       //建库
       logger.warn("create db...")
       var dbCreateSql =
@@ -164,13 +164,13 @@ object InitGenerator {
           //userActions.update(i, randomUserAction(i))
           superClassUser.add(i, randomOdsSuperClassUser(i))
         }
-        logger.warn("superClassUser.get 1:" + superClassUser.get(1).toString)
+        //logger.warn("superClassUser.get 1:" + superClassUser.get(1).toString)
         val userDF = ss.createDataFrame(superClassUser, classOf[OdsSuperClassUser])
         if (!params.dbAppend) {
-          logger.warn("superClassUser insertInto overwrite" + tableName)
+          //logger.warn("superClassUser insertInto overwrite" + tableName)
           userDF.write.format("parquet").mode("overwrite").saveAsTable(tableName) //使用DataFrameWriterV1 API spark2.4
         } else {
-          logger.warn("superClassUser insertInto overwrite" + tableName)
+          //logger.warn("superClassUser insertInto overwrite" + tableName)
           userDF.write.format("parquet").mode("append").saveAsTable(tableName)
         }
       } else {
@@ -214,13 +214,13 @@ object InitGenerator {
         for (i <- 0 to limit - 1) {
           dimCstmActiveUser.add(i, randomDimCstmActiveUser(i))
         }
-        logger.warn("insert table get 1:" + dimCstmActiveUser.get(1))
+        //logger.warn("insert table get 1:" + dimCstmActiveUser.get(1))
         val userDF = ss.createDataFrame(dimCstmActiveUser, classOf[DimCstmActiveUser])
         if (!params.dbAppend) {
-          logger.warn("insert table overwrite")
+          //logger.warn("insert table overwrite")
           userDF.write.format("parquet").mode("overwrite").saveAsTable(tableName) //使用DataFrameWriterV1 API spark2.4
         } else {
-          logger.warn("insert table append")
+          //logger.warn("insert table append")
           userDF.write.format("parquet").mode("append").saveAsTable(tableName)
         }
       } else {
@@ -296,7 +296,7 @@ object InitGenerator {
 
   def randomDimCstmActiveUser(num: Int): DimCstmActiveUser = {
     //user_number
-    val userNumber = 10000 + new Random().nextInt(100000 - 10000).toString
+    val userNumber = 1000 + new Random().nextInt(1000).toString
 
     //product_name
     val productNameRandom = Array(
@@ -308,11 +308,11 @@ object InitGenerator {
     val productName = productNameRandom(v1)
 
     //event_time
-    val eventTimeRandom = -30 + new Random().nextInt(100 + 30)
-    val eventDate = DataUtils.funAddDate("20240409", eventTimeRandom)
-    val eventTime = DataUtils.funStringToTimeStamp(eventDate, "yyyyMMdd")
+    val eventTimeRandom = 0 + new Random().nextInt(100)
+    val eventDate = DataUtils.funAddDate("20240415", eventTimeRandom)
+    val eventTime = DataUtils.funStringToTimeStamp(eventDate, "yyyyMMdd")/1000
 
-    val firstDateRandom = -30 + new Random().nextInt(0 + 30)
+    val firstDateRandom = 0 + new Random().nextInt(100)
     val firstDate = DataUtils.funAddDate(eventDate, eventTimeRandom)
 
     //first_app_version
@@ -447,20 +447,20 @@ object InitGenerator {
 
   def randomOdsSuperClassUser(num: Int): OdsSuperClassUser = {
     //user_id
-    val userId = 100000 + new Random().nextInt(100000)
+    val userId = 1000 + new Random().nextInt(1000)
 
     //register_product
     //注册学科
     val registerProductRandom = Array(
-      "gaotu::tutu::ketang",
-      "gaotu::tutu::zhiboke",
-      "gaotu::tutu::chengrenjiaoyu"
+      "gaotu:tutu:ketang",
+      "gaotu:tutu:zhiboke",
+      "gaotu:tutu:chengrenjiaoyu"
     )
     val v1 = new Random().nextInt(registerProductRandom.size - 1)
     val registerProduct = registerProductRandom(v1)
 
-    val registerTimeRandom = -300 + new Random().nextInt(300)
-    val registerTime = DataUtils.funStringToTimeStamp(DataUtils.funAddDate("20240409", registerTimeRandom), "yyyyMMdd")
+    val registerTimeRandom = 0 + new Random().nextInt(100)
+    val registerTime = (DataUtils.funStringToTimeStamp(DataUtils.funAddDate("20240415", registerTimeRandom), "yyyyMMdd"))/1000
 
     //随机电话号码
     val phonePrefix = Array(
@@ -485,9 +485,10 @@ object InitGenerator {
     }
     val mobile = phonePrefix(v2) + sb.toString();
 
-    //lastLogin random btw -30 ~ 100 days
-    val lastLoginRandom = -30 + new Random().nextInt(100 + 30)
-    val lastLogin = DataUtils.funStringToTimeStamp(DataUtils.funAddDate("20240409", lastLoginRandom), "yyyyMMdd")
+    //lastLogin random btw 0 ~ 30 days
+    val lastLoginRandom = 0 + new Random().nextInt(3600*24*30)
+    //val lastLogin = (DataUtils.funStringToTimeStamp(DataUtils.funAddDate("20240415", lastLoginRandom), "yyyyMMdd"))/1000
+    val lastLogin = registerTime + lastLoginRandom
 
     //device_type
     val phoneModel = Array(
@@ -534,7 +535,7 @@ object InitGenerator {
 
     //birthday
     val birthdayRandom = -3000 + new Random().nextInt(3000)
-    val birthday = DataUtils.funAddDate("20240409", birthdayRandom)
+    val birthday = DataUtils.funAddDate("20240415", birthdayRandom)
 
     //subject
     val subjectRandom = Array(
@@ -591,14 +592,14 @@ object InitGenerator {
       val orderNumber = 100 + new Random().nextInt(10000 - 100)
 
       //user_number
-      val userNumber = 10000 + new Random().nextInt(100000 - 10000)
+      val userNumber = 1000 + new Random().nextInt(1000)
 
       //user_number_boss
       val userNumberBoss = userNumber.toString
 
-      //create_time random btw 1 ~ 100 days
-      val createTimeRandom = 1 + new Random().nextInt(100 - 1)
-      val creatTime = DataUtils.funAddDate("20240409", createTimeRandom)
+      //create_time random btw 1 ~ 30 days
+      val createTimeRandom = 1 + new Random().nextInt(100)
+      val creatTime = DataUtils.funAddDate("20240415", createTimeRandom)
 
       //source
       val source_arry = Array(
@@ -611,8 +612,8 @@ object InitGenerator {
       val v2 = new Random().nextInt(source_arry.size - 1)
       val source = source_arry(v2)
 
-      //paid_time bigger than create_time 1 to 10
-      val paidTimeRandom = 1 + new Random().nextInt(10 - 1)
+      //paid_time bigger than create_time 1 to 100
+      val paidTimeRandom = 1 + new Random().nextInt(100)
       val paidTime = DataUtils.funAddDate(creatTime, paidTimeRandom)
 
       val courseType = 10 + new Random().nextInt(30 - 10)

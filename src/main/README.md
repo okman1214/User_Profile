@@ -35,7 +35,6 @@ CREATE TABLE hive.dwd.t1 (id int, name string) USING iceberg;
 INSERT INTO hive.dwd.dwd_user_base_feature values("1", "男","20","1309181881","ok@124.com","4g","iphone","iphone13");
 
 2、EMR 测试Spark
-
 nohup ${SPARK_HOME}/bin/spark-submit \
 --conf spark.executor.heartbeatInterval=120s \
 --conf spark.rpc.message.maxSize=1024 \
@@ -50,4 +49,6 @@ nohup ${SPARK_HOME}/bin/spark-submit \
 --num-executors 4 \
 --class com.msdnfaq.bigdata.sparkvshive.SparkTest \
 /home/hadoop/User_Profile-1.0-SNAPSHOT-jar-with-dependencies.jar \
--e dlc_hive_prod -x hadoop -l 10000000 -u baidu.com -n hadoop -p 123 -c yarn -d lynchgao -a false >> error.log 2>&1 &
+-e dlc_hive_prod -x hadoop -l 10000000 -u baidu.com -n hadoop -p 123 -c yarn -d lynchgao -a true >> error.log 2>&1 &
+
+bin/beeline -u "jdbc:hive2://10.18.0.221:2181,10.18.0.233:2181,10.18.0.211:2181/default;serviceDiscoveryMode=zooKeeper;zooKeeperNamespace=kyuubi;#spark.driver.memory=10g;spark.executor.memory=2g;spark.executor.cores=3;spark.executor.instances=1;kyuubi.engine.share.level=CONNECTION" -n hadoop -f /home/hadoop/spark.sql

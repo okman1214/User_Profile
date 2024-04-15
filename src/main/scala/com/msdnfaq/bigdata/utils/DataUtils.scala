@@ -261,6 +261,8 @@ object DataUtils {
     //      println(arr(i))
     //    }
 
-    println(DataUtils.getrealTime("yyyyMMdd"))
+    println(DataUtils.funAddDate("20240409", 1))
+    println(DataUtils.funStringToTimeStamp("20240409121212", "yyyyMMddHHmmss"))
+    println(DataUtils.funStringToTimeStamp(DataUtils.funAddDate("20240409", 200) , "yyyyMMdd").toString)
   }
 }
