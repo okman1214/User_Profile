@@ -29,6 +29,8 @@ ${SPARK_HOME}/bin/spark-submit \
    --conf spark.sql.extensions=org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions \
    --conf spark.sql.catalog.DataLakeCatalog=org.apache.iceberg.spark.SparkCatalog \
    --conf spark.sql.catalog.DataLakeCatalog.type=hive \
+
+spark-sql --master yarn --deploy-mode client --driver-memory 10G --executor-memory 2G --num-executors 4 -f spark.sql
   
   
 CREATE TABLE hive.dwd.t1 (id int, name string) USING iceberg;
